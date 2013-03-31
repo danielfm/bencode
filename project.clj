@@ -1,5 +1,5 @@
 (defproject bencode "0.0.1"
-  :description "BitTorrent encoding format implementation for Clojure."
+  :description "BitTorrent encoding implementation for Clojure."
   :url "https://github.com/danielfm/bencode"
   :license {:name "BSD License"
             :url "http://raw.github.com/danielfm/bencode/master/COPYING"}
