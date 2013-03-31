@@ -47,10 +47,12 @@
     (is (= "de" (bencode {}))))
 
   (testing "Encoding a simple non-empty dictionary"
-    (is (= "d3:cow3:moo4:spami64ee" (bencode {:spam 64, :cow "moo"}))))
+    (is (= "d3:cow3:moo3:onei2e4:spami64ee"
+           (bencode {"spam" 64, "cow" "moo", :one 2}))))
 
   (testing "Encoding a dictionary containing a sequence"
-    (is (= "d4:spaml4:eggsi64eee" (bencode {:spam ["eggs" 64]}))))
+    (is (= "d4:spaml4:eggsi64eee"
+           (bencode {:spam ["eggs" 64]}))))
 
   (testing "Encoding nested dictionaries"
     (is (= "d4:spamd3:cow3:mooee"

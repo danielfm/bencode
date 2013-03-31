@@ -24,7 +24,13 @@
 (defn- valid-dict?
   "Returns whether the dictionary m only contains valid keys."
   [m]
-  (every? keyword? (keys m)))
+  (every? (some-fn keyword? string?) (keys m)))
+
+(defn- sort-dict
+  "Returns a normalized and sorted version of dictionary m."
+  [m]
+  (into (sorted-map)
+        (map (fn [[k v]] [(name k) v]) m)))
 
 (extend-protocol Bencodable
   CharSequence
@@ -66,6 +72,6 @@
   java.util.Map
   (bencode [self]
     (if (valid-dict? self)
-      (let [encoded-entries (map bencode-dict-entry self)]
+      (let [encoded-entries (map bencode-dict-entry (sort-dict self))]
         (str "d" (reduce str encoded-entries) "e"))
       (error "Only keywords can be used as dictionary keys"))))
