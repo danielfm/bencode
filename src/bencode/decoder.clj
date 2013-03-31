@@ -10,7 +10,7 @@
 (defmulti bdecode-type
   "Dispatches to the proper decoder method according to the first element
 of seq."
-  (fn [seq & _]
+  (fn [seq _]
     (let [f (first seq)]
       (cond
        (= f \i)   ::int
@@ -29,6 +29,12 @@ with the number's digits at index 0 and the remaining of seq at index 1."
         (recur (conj data f) (rest rem))
         [(apply str data) rem]))))
 
+(defn- invalid-number?
+  "Returns whether digits reprents an invalid number according to the spec."
+  [digits]
+  (or (empty? digits)
+      (and (> (count digits) 1) (= \0 (first digits)))))
+
 (defn- bdecode-dict-entry
   "Bdecodes a dictionary entry from sequence seq, where the key and its
 corresponding value are concatenated."
@@ -45,10 +51,10 @@ opts."
     key
     (keyword key)))
 
-(defmethod bdecode-type ::unknown [seq & opts]
+(defmethod bdecode-type ::unknown [seq opts]
   (error "Unexpected token"))
 
-(defmethod bdecode-type ::str [seq & opts]
+(defmethod bdecode-type ::str [seq opts]
   (let [[size seq] (read-digits seq)
         len (read-string size)
         text (apply str (take len (rest seq)))]
@@ -56,24 +62,24 @@ opts."
       (error "Unexpected end of string")
       [text (drop (inc len) seq)])))
 
-(defmethod bdecode-type ::int [seq & opts]
+(defmethod bdecode-type ::int [seq opts]
   (let [number-seq (rest seq)
         sign (#{\- \+} (first number-seq))]
     (if (and (= \- sign) (= \0 (second number-seq)))
       (error "Invalid number expression")
       (let [[digits rem] (read-digits (if sign (rest number-seq) number-seq))]
-        (if (or (empty? digits) (not (= \e (first rem))))
+        (if (or (invalid-number? digits) (not (= \e (first rem))))
           (error "Invalid number expression")
           [(read-string (str sign digits)) (rest rem)])))))
 
-(defmethod bdecode-type ::seq [seq & opts]
+(defmethod bdecode-type ::seq [seq opts]
   (loop [data [] rem (rest seq)]
     (if (= \e (first rem))
       [data (rest rem)]
       (let [[item rem] (bdecode-type rem opts)]
         (recur (conj data item) rem)))))
 
-(defmethod bdecode-type ::dict [seq & opts]
+(defmethod bdecode-type ::dict [seq opts]
   (loop [data (sorted-map) rem (rest seq)]
     (if (= \e (first rem))
       [data (rest rem)]
@@ -84,7 +90,7 @@ opts."
 
 (defn bdecode
   "Bdecodes the given string."
-  [s & opts]
+  [s opts]
   (let [[data rem] (bdecode-type s opts)]
     (if (empty? rem)
       data
