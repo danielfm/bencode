@@ -35,7 +35,8 @@
 (extend-protocol Bencodable
   CharSequence
   (bencode [self]
-    (str (.length self) ":" self))
+    (let [len (count (.getBytes self "UTF-8"))]
+      (str len ":" self)))
 
   clojure.lang.Keyword
   (bencode [self]

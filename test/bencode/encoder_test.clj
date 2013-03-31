@@ -9,7 +9,11 @@
 
   (testing "Encoding an empty string"
     (is (= "0:"
-           (bencode "")))))
+           (bencode ""))))
+
+  (testing "Encoding an string respecing the encoding"
+    (is (= "6:2000\u0445"
+           (bencode "2000\u0445")))))
 
 (deftest keyword-encoding
   (testing "Encoding a keyword"
