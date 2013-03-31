@@ -6,7 +6,7 @@ the encoding used by BitTorrent for storing and transmitting loosely structured 
 
 ## Installation
 
-Add the following dependency to your project.clj file:
+Add the following dependency to your _project.clj_ file:
 
 ````clojure
 
