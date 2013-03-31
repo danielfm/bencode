@@ -31,7 +31,7 @@ with the number's digits at index 0 and the remaining of seq at index 1."
         [(apply str data) rem]))))
 
 (defn- invalid-number?
-  "Returns whether digits reprents an invalid number according to the spec."
+  "Returns whether digits represents an invalid number according to the spec."
   [digits]
   (or (empty? digits)
       (and (> (count digits) 1) (= \0 (first digits)))))
