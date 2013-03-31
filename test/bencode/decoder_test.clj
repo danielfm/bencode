@@ -90,6 +90,10 @@
     (is (= {:spam {:cow "moo"}}
            (bdecode "d4:spamd3:cow3:mooee"))))
 
+  (testing "Decoding dictionaries using strings as keys instead of keywords"
+    (is (= {"spam" {"cow" "moo"}})
+        (bdecode "d4:spamd3:cow3:mooee" {:str-keys? true})))
+
   (testing "Decoding a dictionary with invalid keys"
     (is (thrown? IllegalArgumentException
                  (bdecode "di64e3:cowe")))))
