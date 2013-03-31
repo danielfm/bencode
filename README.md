@@ -61,7 +61,8 @@ strings, not alphanumerics).
 
 On the Clojure side, _keywords_ are encoded as _strings_, _sets_ are encoded
 as _lists_, and all integers - _byte_, _short_, _int_, _long_, _big integers_ -
-are encoded as _integers_ with arbitrary size.
+are encoded as _integers_ with arbitrary size, and decoded to the smallest type
+which can hold the number without losing data.
 
 
 ## License
