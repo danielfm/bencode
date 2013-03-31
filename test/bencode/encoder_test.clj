@@ -21,6 +21,12 @@
     (is (= "i64e"
            (bencode 64))))
 
+  (testing "Encoding a very large number"
+    (are [n] (= "i238273467862384962834523482364273525365425364825376547257e"
+                (bencode n))
+         (BigInteger. "238273467862384962834523482364273525365425364825376547257")
+         238273467862384962834523482364273525365425364825376547257N))
+
   (testing "Encoding a negative number"
     (is (= "i-32e"
            (bencode -32))))

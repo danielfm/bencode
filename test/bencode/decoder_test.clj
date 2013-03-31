@@ -24,6 +24,10 @@
     (is (= 64
            (bdecode "i64e" nil))))
 
+  (testing "Decoding a very large number"
+    (is (= 238273467862384962834523482364273525365425364825376547257N
+           (bdecode "i238273467862384962834523482364273525365425364825376547257e" nil))))
+
   (testing "Decoding a positive number with sign"
     (is (= 64
            (bdecode "i+64e" nil))))

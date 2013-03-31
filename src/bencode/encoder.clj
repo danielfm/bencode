@@ -61,6 +61,10 @@
   (bencode [self]
     (bencode-number self))
 
+  clojure.lang.BigInt
+  (bencode [self]
+    (bencode-number self))
+
   java.util.Set
   (bencode [self]
     (bencode-seq self))
