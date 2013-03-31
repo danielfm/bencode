@@ -1,4 +1,5 @@
 (ns bencode.decoder
+  (:require [clojure [edn :as edn]])
   (:use [bencode.error]))
 
 (defn- digit?
@@ -56,7 +57,7 @@ opts."
 
 (defmethod bdecode-type ::str [seq opts]
   (let [[size seq] (read-digits seq)
-        len (read-string size)
+        len (edn/read-string size)
         text (apply str (take len (rest seq)))]
     (if (> len (count text))
       (error "Unexpected end of string")
@@ -70,7 +71,7 @@ opts."
       (let [[digits rem] (read-digits (if sign (rest number-seq) number-seq))]
         (if (or (invalid-number? digits) (not (= \e (first rem))))
           (error "Invalid number expression")
-          [(read-string (str sign digits)) (rest rem)])))))
+          [(edn/read-string (str sign digits)) (rest rem)])))))
 
 (defmethod bdecode-type ::seq [seq opts]
   (loop [data [] rem (rest seq)]
