@@ -8,5 +8,5 @@
 
 (defn bdecode
   "Bdecodes the given string."
-  [s]
-  (bencode.decoder/bdecode s))
+  ([s] (bdecode s nil))
+  ([s opts] (bencode.decoder/bdecode s opts)))
