@@ -3,21 +3,21 @@
   (:use [bencode.error]))
 
 (defn- digit?
-  "Returns whether ch is a digit, e.g., value between 0 and 9."
-  [ch]
-  (let [i (int ch)]
-    (and (>= i 48) (<= i 57))))
+  "Returns whether byte b is a digit, e.g., value between 0 and 9."
+  [b]
+  (and (>= b 48) (<= b 57)))
 
 (defmulti bdecode-type
   "Dispatches to the proper decoder method according to the first element
 of seq."
   (fn [seq _]
-    (let [f (first seq)]
+    (let [b (first seq)
+          ch (char b)]
       (cond
-       (= f \i)   ::int
-       (= f \l)   ::seq
-       (= f \d)   ::dict
-       (digit? f) ::str
+       (= ch \i)   ::int
+       (= ch \l)   ::seq
+       (= ch \d)   ::dict
+       (digit? b) ::str
        :else      ::unknown))))
 
 (defn- read-digits
@@ -27,14 +27,15 @@ with the number's digits at index 0 and the remaining of seq at index 1."
   (loop [data [] rem seq]
     (let [f (first rem)]
       (if (digit? f)
-        (recur (conj data f) (rest rem))
+        (recur (conj data (char f)) (rest rem))
         [(apply str data) rem]))))
 
 (defn- invalid-number?
   "Returns whether digits represents an invalid number according to the spec."
   [digits]
   (or (empty? digits)
-      (and (> (count digits) 1) (= \0 (first digits)))))
+      (and (> (count digits) 1)
+           (= \0 (char (first digits))))))
 
 (defn- bdecode-dict-entry
   "Bdecodes a dictionary entry from sequence seq, where the key and its
@@ -56,33 +57,40 @@ opts."
   (error "Unexpected token"))
 
 (defmethod bdecode-type ::str [seq opts]
-  (let [[size seq] (read-digits seq)
+  (let [[size rem] (read-digits seq)
         len (edn/read-string size)
-        text (apply str (take len (rest seq)))]
-    (if (> len (count text))
-      (error "Unexpected end of string")
-      [text (drop (inc len) seq)])))
+        data (byte-array len)]
+    (loop [i 0 rem (rest rem)]
+      (when (< i len)
+        (when (empty? rem)
+          (error "Unexpected end of string"))
+        (aset-byte data i (first rem))
+        (recur (inc i) (rest rem))))
+    [(String. data "UTF-8") (drop (inc len) rem)]))
 
 (defmethod bdecode-type ::int [seq opts]
   (let [number-seq (rest seq)
-        sign (#{\- \+} (first number-seq))]
-    (if (and (= \- sign) (= \0 (second number-seq)))
+        sign (#{\- \+} (char (first number-seq)))]
+    (if (and (= \- sign)
+             (= \0 (char (second number-seq))))
       (error "Invalid number expression")
       (let [[digits rem] (read-digits (if sign (rest number-seq) number-seq))]
-        (if (or (invalid-number? digits) (not (= \e (first rem))))
+        (if (or (invalid-number? digits)
+                (not (= \e (char (first rem)))))
           (error "Invalid number expression")
           [(edn/read-string (str sign digits)) (rest rem)])))))
 
 (defmethod bdecode-type ::seq [seq opts]
   (loop [data [] rem (rest seq)]
-    (if (= \e (first rem))
+    (if (= \e (char (first rem)))
       [data (rest rem)]
       (let [[item rem] (bdecode-type rem opts)]
         (recur (conj data item) rem)))))
 
 (defmethod bdecode-type ::dict [seq opts]
-  (loop [data (sorted-map) rem (rest seq)]
-    (if (= \e (first rem))
+  (loop [data (sorted-map)
+         rem (rest seq)]
+    (if (= \e (char (first rem)))
       [data (rest rem)]
       (let [[key val rem] (bdecode-dict-entry rem opts)]
         (if (string? key)
@@ -92,7 +100,8 @@ opts."
 (defn bdecode
   "Bdecodes the given string."
   [s opts]
-  (let [[data rem] (bdecode-type s opts)]
+  (let [bytes (if (string? s) (.getBytes s) s)
+        [data rem] (bdecode-type bytes opts)]
     (if (empty? rem)
       data
       (error "Unexpected trailing data"))))
