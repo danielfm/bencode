@@ -11,6 +11,10 @@
     (is (= ""
            (bdecode "0:" nil))))
 
+  (testing "Decoding a UTF-8 string"
+    (is (= "2000\u0445"
+           (bdecode (.getBytes "6:2000\u0445" "UTF-8") nil))))
+
   (testing "Decoding a string that is shorter than expected"
     (is (thrown? IllegalArgumentException
                  (bdecode "4:spa" nil))))
