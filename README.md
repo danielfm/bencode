@@ -36,20 +36,42 @@ encoding and decoding, respectively:
 ```
 
 
+### Encoding Options
+
+The `bencode` function also accepts an optional map:
+
+````clojure
+
+(bencode "moo" {:raw-str? true})
+-> #<byte[] [B@53c059f6>
+````
+
+At this point, these are the exposed options:
+
+* `:to` - Instance of `OutputStream` where the encoding result should be
+  written to. Default: `nil`
+* `:raw-str?` - Whether the string being encoded should be returned as a
+  byte array. This option can only be used if the option `:to` is absent.
+  Default: `false`
+
+
 ### Decoding Options
 
 The `bdecode` function also accepts an optional map:
 
 ````clojure
 
-(bdecode "d3:cow3:moo4:spaml4:infoi32eee", {:str-keys? true})
-;; -> {"cow" "moo", "spam" ["info" 32]}
+(bdecode "d3:cow3:moo4:spaml4:infoi32eee", {:str-keys? true :raw-keys ["spam"]})
+;; -> {"cow" "moo", "spam" [#<byte[] [B@74184b3b> 32]}
 ````
 
 At this point, these are the exposed options:
 
+
 * `:str-keys?` - Whether strings should be used as dictionary keys instead of
   keywords. Default: `false`
+* `:raw-keys` - List containing all dictionary keys whose values should be
+  decoded as raw strings instead of UTF-8-encoded strings. Default: `nil`
 
 
 ### Supported Data Types
