@@ -43,7 +43,7 @@ The `bencode` function also accepts an optional map:
 ````clojure
 
 (bencode "moo" {:raw-str? true})
--> #<byte[] [B@53c059f6>
+;; -> #<byte[] [B@53c059f6>
 ````
 
 At this point, these are the exposed options:
