@@ -10,7 +10,8 @@
     (.write out (.getBytes s) 0 (count s))))
 
 (defn- invalid-number?
-  "Returns whether digits represents an invalid number according to the spec."
+  "Returns whether the string of digits represents an invalid number according
+   to the spec."
   [digits]
   (or (empty? digits)
       (and (> (count digits) 1)

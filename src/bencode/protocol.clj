@@ -10,8 +10,8 @@
   (bencode! [self out opts] "Returns a bencoded string of self."))
 
 (defmulti bdecode-type!
-  "Dispatches to the proper decoder method according to the first element
-   of seq."
+  "Dispatches to the proper decoder method according to the next byte read
+   from input stream in."
   (fn [in _]
     (.mark in 1)
     (let [b (.read in)

@@ -24,8 +24,8 @@
     (keyword key)))
 
 (defn- bdecode-dict-entry!
-  "Bdecodes a dictionary entry from sequence seq, where the key and its
-   corresponding value are concatenated."
+  "Bdecodes a dictionary entry from input stream in, where the key and its
+   corresponding value comes in a row."
   [in opts]
   (let [raw-keys (:raw-keys opts)
         key (bdecode-type! in opts)
