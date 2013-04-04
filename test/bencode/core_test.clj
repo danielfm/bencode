@@ -2,9 +2,15 @@
   (:use clojure.test
         bencode.core))
 
-(deftest delegate-fns
-  (testing "Function that calls bencode"
-    (is (= "1:x" (bencode "x"))))
+(deftest encoding-options
+  (testing "Encoding output as string"
+    (is (= "4:spam" (bencode "spam"))))
 
-  (testing "Function that calls bdecode"
-    (is (= "x" (bdecode "1:x")))))
+  (testing "Encoding output as a byte array"
+    (is (= (vec (.getBytes "4:spam"))
+           (vec (bencode "spam" {:raw-str? true})))))
+
+  (testing "Encoding output to a custom stream"
+    (let [stream (java.io.ByteArrayOutputStream.)]
+      (bencode "spam" {:to stream})
+      (is (= "4:spam" (String. (.toByteArray stream)))))))

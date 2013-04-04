@@ -1,12 +1,27 @@
 (ns bencode.core
-  (:require (bencode encoder decoder)))
+  (:require [bencode.protocol :as protocol])
+  (:use [bencode.type.number]
+        [bencode.type.string]
+        [bencode.type.list]
+        [bencode.type.dict]
+        [bencode.type.stream]))
 
 (defn bencode
   "Bencodes the given object."
-  [obj]
-  (bencode.encoder/bencode obj))
+  ([obj]
+     (bencode obj nil))
+  ([obj opts]
+     (let [out (or (get opts :to (java.io.ByteArrayOutputStream.)))]
+       (protocol/bencode! obj out opts)
+       (when-not (:to opts)
+         (let [arr (.toByteArray out)]
+           (if (:raw-str? opts)
+             arr
+             (String. arr "UTF-8")))))))
 
 (defn bdecode
   "Bdecodes the given string."
-  ([s] (bdecode s nil))
-  ([s opts] (bencode.decoder/bdecode s opts)))
+  ([obj]
+     (protocol/bdecode obj nil))
+  ([obj opts]
+     (protocol/bdecode obj opts)))
