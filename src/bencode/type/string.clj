@@ -41,4 +41,4 @@
       (error "Unterminated string")
       (if (:raw-str? opts)
         data
-        (String. data)))))
+        (String. data "UTF-8")))))
