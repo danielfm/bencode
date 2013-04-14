@@ -20,8 +20,8 @@
   (/ (count (torrent-pieces torrent)) 20))
 
 (defn torrent-size [torrent]
-  (* (torrent-piece-length torrent)
-     (count-torrent-pieces torrent)))
+  (reduce + (map #(get % "length")
+                 (get-in torrent ["info" "files"]))))
 
 (defn hex-from-bytes [byte-arr]
   (let [sb (StringBuffer.)]
