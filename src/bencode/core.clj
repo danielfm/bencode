@@ -20,8 +20,8 @@
              (String. arr "UTF-8")))))))
 
 (defn bdecode
-  "Bdecodes the given string."
-  ([obj]
-     (protocol/bdecode obj nil))
-  ([obj opts]
-     (protocol/bdecode obj opts)))
+  "Bdecodes the given input."
+  ([in]
+     (protocol/bdecode in nil))
+  ([in opts]
+     (protocol/bdecode in opts)))
