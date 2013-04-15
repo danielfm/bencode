@@ -24,8 +24,7 @@
 (defn -main [& args]
   (let [f (io/file (nth args 0))]
     (with-open [stream (io/input-stream f)]
-      (let [torrent (bdecode stream {:str-keys? true
-                                     :raw-keys ["pieces"]})]
+      (let [torrent (parse-metainfo stream)]
           (println "Torrent Name..: " (get-in torrent ["info" "name"]))
           (println "Creation Date.: " (format-date (get torrent "creation date")))
           (println "Created By....: " (get torrent "created by"))

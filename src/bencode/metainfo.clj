@@ -10,6 +10,12 @@
       (.append sb (.substring (Integer/toString (+ (bit-and b 0xff) 0x100) 16) 1)))
     (.toString sb)))
 
+(defn parse-metainfo
+  "Bdecodes the given torrent metainfo input."
+  [in]
+  (bdecode in {:str-keys? true
+               :raw-keys ["pieces"]}))
+
 (defn single-file-torrent?
   "Returns whether metainfo represents a single-file torrent."
   [metainfo]
