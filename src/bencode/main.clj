@@ -1,39 +1,14 @@
 (ns bencode.main
   (:gen-class)
-  (:use [bencode.core])
+  (:use [bencode.core]
+        [bencode.metainfo])
   (:require [clojure.java [io :as io]])
-  (:import [java.security MessageDigest]
-           [java.util Date]
+  (:import [java.util Date]
            [java.text SimpleDateFormat]))
 
 (defn format-date [timestamp]
   (let [f (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss.SSSZ")]
     (.format f (Date. (* timestamp 1000)))))
-
-(defn torrent-piece-length [torrent]
-  (get-in torrent ["info" "piece length"]))
-
-(defn torrent-pieces [torrent]
-  (get-in torrent ["info" "pieces"]))
-
-(defn count-torrent-pieces [torrent]
-  (/ (count (torrent-pieces torrent)) 20))
-
-(defn torrent-size [torrent]
-  (reduce + (map #(get % "length")
-                 (get-in torrent ["info" "files"]))))
-
-(defn hex-from-bytes [byte-arr]
-  (let [sb (StringBuffer.)]
-    (doseq [b byte-arr]
-      (.append sb (.substring (Integer/toString (+ (bit-and b 0xff) 0x100) 16) 1)))
-    (.toString sb)))
-
-(defn torrent-info-hash [torrent]
-  (let [enc (bencode (get torrent "info") {:raw-str? true})
-        dig (MessageDigest/getInstance "SHA1")
-        res (.digest dig enc)]
-    (hex-from-bytes res)))
 
 (defn print-announce-group [idx group]
   (print (str (inc idx) ". "))
@@ -61,7 +36,7 @@
           (println "")
 
           (println "Piece Length..: " (str (torrent-piece-length torrent) " bytes"))
-          (println "# of Pieces...: " (count-torrent-pieces torrent))
+          (println "# of Pieces...: " (torrent-pieces-count torrent))
           (println "Total Size....: " (str (torrent-size torrent) " bytes"))
 
           (println "")
@@ -72,8 +47,7 @@
 
           (println "")
 
-          (println "Files.........: " (count (get-in torrent ["info" "files"])))
-          (doall
-           (map-indexed print-file (get-in torrent ["info" "files"])))
-
-          (println "")))))
+          (when-let [files (get-in torrent ["info" "files"])]
+            (println "Files.........: " (count files))
+            (doall (map-indexed print-file files))
+            (println ""))))))
