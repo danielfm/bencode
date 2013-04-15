@@ -10,6 +10,16 @@
       (.append sb (.substring (Integer/toString (+ (bit-and b 0xff) 0x100) 16) 1)))
     (.toString sb)))
 
+(defn single-file-torrent?
+  "Returns whether meta-info represents a single-file torrent."
+  [meta-info]
+  (pos? (get-in meta-info ["info" "length"] 0)))
+
+(defn multi-file-torrent?
+  "Returns whether meta-info represents a multi-file torrent."
+  [meta-info]
+  (not (single-file-torrent? meta-info)))
+
 (defn torrent-piece-length
   "Returns the length of each piece, in bytes."
   [meta-info]
