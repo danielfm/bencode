@@ -11,41 +11,41 @@
     (.toString sb)))
 
 (defn single-file-torrent?
-  "Returns whether meta-info represents a single-file torrent."
-  [meta-info]
-  (pos? (get-in meta-info ["info" "length"] 0)))
+  "Returns whether metainfo represents a single-file torrent."
+  [metainfo]
+  (pos? (get-in metainfo ["info" "length"] 0)))
 
 (defn multi-file-torrent?
-  "Returns whether meta-info represents a multi-file torrent."
-  [meta-info]
-  (not (single-file-torrent? meta-info)))
+  "Returns whether metainfo represents a multi-file torrent."
+  [metainfo]
+  (not (single-file-torrent? metainfo)))
 
 (defn torrent-piece-length
   "Returns the length of each piece, in bytes."
-  [meta-info]
-  (get-in meta-info ["info" "piece length"]))
+  [metainfo]
+  (get-in metainfo ["info" "piece length"]))
 
 (defn torrent-pieces-hash
   "Returns the torrent pieces hash."
-  [meta-info]
-  (get-in meta-info ["info" "pieces"]))
+  [metainfo]
+  (get-in metainfo ["info" "pieces"]))
 
 (defn torrent-pieces-count
   "Returns the number of pieces."
-  [meta-info]
-  (/ (count (torrent-pieces-hash meta-info)) 20))
+  [metainfo]
+  (/ (count (torrent-pieces-hash metainfo)) 20))
 
 (defn torrent-size
   "Return the total size of the torrent, in bytes."
-  [meta-info]
-  (or (get-in meta-info ["info" "length"])
+  [metainfo]
+  (or (get-in metainfo ["info" "length"])
       (reduce + (map #(get % "length")
-                     (get-in meta-info ["info" "files"])))))
+                     (get-in metainfo ["info" "files"])))))
 
 (defn torrent-info-hash
   "Returns the torrent info hash."
-  [meta-info]
-  (let [enc (bencode (get meta-info "info") {:raw-str? true})
+  [metainfo]
+  (let [enc (bencode (get metainfo "info") {:raw-str? true})
         dig (MessageDigest/getInstance "SHA1")
         res (.digest dig enc)]
     (hex-from-bytes res)))
