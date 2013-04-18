@@ -38,9 +38,19 @@
   (not (private-torrent? metainfo)))
 
 (defn torrent-name
-  "Returns the name of the torrent."
+  "Returns the torrent name."
   [metainfo]
   (get-in metainfo ["info" "name"]))
+
+(defn torrent-announce
+  "Returns the torrent tracker URL."
+  [metainfo]
+  (get metainfo "announce"))
+
+(defn torrent-announce-list
+  "Returns the list of torrent tracker URLs."
+  [metainfo]
+  (get metainfo "announce-list"))
 
 (defn torrent-piece-length
   "Returns the length of each piece, in bytes."

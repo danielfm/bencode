@@ -26,6 +26,23 @@
 
 (deftest basic-info
   (with-torrent "resources/fixtures/single-file.torrent"
+    (testing "Tracker URL"
+      (is (= "udp://tracker.1337x.org:80/announce"
+             (torrent-announce *meta-info*))))
+
+    (testing "Tracker URL list"
+      (is (= [["udp://tracker.1337x.org:80/announce"]
+              ["udp://tracker.publicbt.com:80/announce"]
+              ["udp://tracker.openbittorrent.com:80/announce"]
+              ["udp://fr33domtracker.h33t.com:3310/announce"]
+              ["udp://tracker.istole.it:80/announce"]
+              ["http://exodus.desync.com:6969/announce"]
+              ["udp://tracker.ccc.de:80"]
+              ["udp://tracker.istole.it:6969"]
+              ["udp://tracker.openbittorrent.com:80"]
+              ["udp://tracker.publicbt.com:80"]]
+             (torrent-announce-list *meta-info*))))
+
     (testing "Torrent name"
       (is (= "ubuntu-12.10-desktop-i386.iso" (torrent-name *meta-info*))))
 

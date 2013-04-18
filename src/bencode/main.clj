@@ -40,9 +40,9 @@
 
           (println "")
 
-          (println "Trackers......: " (get torrent "announce"))
+          (println "Trackers......: " (torrent-announce torrent))
           (doall
-           (map-indexed print-announce-group (get torrent "announce-list")))
+           (map-indexed print-announce-group (torrent-announce-list torrent)))
 
           (println "")
 
