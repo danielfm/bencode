@@ -2,7 +2,8 @@
   (:require [clojure.java [io :as io]])
   (:use [clojure.test]
         [bencode.core]
-        [bencode.metainfo]))
+        [bencode.metainfo])
+  (:import [java.util Date]))
 
 (defonce ^:dynamic *meta-info* nil)
 
@@ -22,3 +23,61 @@
     (with-torrent "resources/fixtures/multi-file.torrent"
       (is (multi-file-torrent? *meta-info*))
       (is (not (single-file-torrent? *meta-info*))))))
+
+(deftest basic-info
+  (with-torrent "resources/fixtures/single-file.torrent"
+    (testing "Torrent name"
+      (is (= "ubuntu-12.10-desktop-i386.iso" (torrent-name *meta-info*))))
+
+    (testing "Piece length, in bytes"
+      (is (= 524288 (torrent-piece-length *meta-info*))))
+
+    (testing "Number of pieces"
+      (is (= 1507 (torrent-pieces-count *meta-info*))))
+
+    (testing "Pieces hash"
+      (testing "Hash for the first piece"
+        (is (= "0fb30249ec80648eebe61636396d9a247068d5a2"
+               (first (torrent-pieces-hash-list *meta-info*)))))
+
+      (testing "Hash for the last piece"
+        (is (= "ad649e2955576e0af98200564cd4c5e2da081453"
+               (last (torrent-pieces-hash-list *meta-info*))))))
+
+    (testing "Creation date"
+      (is (= (Date. (* 1350570562 1000))
+             (torrent-creation-date *meta-info*))))
+
+    (testing "Comment"
+      (is (= "http://www.monova.org" (torrent-comment *meta-info*))))
+
+    (testing "Private"
+      (is (public-torrent? *meta-info*))
+      (is (not (private-torrent? *meta-info*))))))
+
+(deftest private-torrent-info
+  (with-torrent "resources/fixtures/private.torrent"
+    (testing "Private"
+      (is (private-torrent? *meta-info*))
+      (is (not (public-torrent? *meta-info*))))
+
+    (testing "Created by"
+      (is (= "mktorrent 1.0" (torrent-created-by *meta-info*))))))
+
+(deftest single-file-torrent-info
+  (with-torrent "resources/fixtures/single-file.torrent"
+    (testing "Torrent size"
+      (is (= 789884928 (torrent-size *meta-info*))))
+
+    (testing "Torrent info hash"
+      (is (= "335990d615594b9be409ccfeb95864e24ec702c7"
+             (torrent-info-hash *meta-info*))))))
+
+(deftest multi-file-torrent-info
+  (with-torrent "resources/fixtures/multi-file.torrent"
+    (testing "Torrent size is the sum of the sizes of all files"
+      (is (= 5805771164 (torrent-size *meta-info*))))
+
+    (testing "Torrent info hash"
+      (is (= "848a6a0ec6c85507b8370e979b133214e5b5a6d4"
+             (torrent-info-hash *meta-info*))))))

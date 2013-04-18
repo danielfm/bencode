@@ -1,6 +1,7 @@
 (ns bencode.metainfo
   (:use [bencode.core])
-  (:import [java.security MessageDigest]))
+  (:import [java.security MessageDigest]
+           [java.util Date]))
 
 (defn- hex-from-bytes
   "Converts a byte-array to a hex string."
@@ -26,6 +27,21 @@
   [metainfo]
   (not (single-file-torrent? metainfo)))
 
+(defn private-torrent?
+  "Returns whether metainfo represents a private torrent."
+  [metainfo]
+  (not= 0 (get-in metainfo ["info" "private"] 0)))
+
+(defn public-torrent?
+  "Returns whether metainfo represents a public torrent."
+  [metainfo]
+  (not (private-torrent? metainfo)))
+
+(defn torrent-name
+  "Returns the name of the torrent."
+  [metainfo]
+  (get-in metainfo ["info" "name"]))
+
 (defn torrent-piece-length
   "Returns the length of each piece, in bytes."
   [metainfo]
@@ -35,6 +51,12 @@
   "Returns the torrent pieces hash."
   [metainfo]
   (get-in metainfo ["info" "pieces"]))
+
+(defn torrent-pieces-hash-list
+  "Returns a lazy seq containing the hash for each piece."
+  [metainfo]
+  (map hex-from-bytes
+   (partition 20 (torrent-pieces-hash metainfo))))
 
 (defn torrent-pieces-count
   "Returns the number of pieces."
@@ -55,3 +77,20 @@
         dig (MessageDigest/getInstance "SHA1")
         res (.digest dig enc)]
     (hex-from-bytes res)))
+
+(defn torrent-creation-date
+  "Returns an instance of java.util.Date representing the torrent
+   creation date."
+  [metainfo]
+  (if-let [timestamp (get metainfo "creation date")]
+    (Date. (* 1000 timestamp))))
+
+(defn torrent-created-by
+  "Returns the torrent maker name."
+  [metainfo]
+  (get metainfo "created by"))
+
+(defn torrent-comment
+  "Returns the torrent comment."
+  [metainfo]
+  (get metainfo "comment"))

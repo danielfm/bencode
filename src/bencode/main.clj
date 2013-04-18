@@ -6,9 +6,9 @@
   (:import [java.util Date]
            [java.text SimpleDateFormat]))
 
-(defn format-date [timestamp]
+(defn format-date [torrent]
   (let [f (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss.SSSZ")]
-    (.format f (Date. (* timestamp 1000)))))
+    (.format f (torrent-creation-date torrent))))
 
 (defn print-announce-group [idx group]
   (print (str (inc idx) ". "))
@@ -25,12 +25,12 @@
   (let [f (io/file (nth args 0))]
     (with-open [stream (io/input-stream f)]
       (let [torrent (parse-metainfo stream)]
-          (println "Torrent Name..: " (get-in torrent ["info" "name"]))
-          (println "Creation Date.: " (format-date (get torrent "creation date")))
-          (println "Created By....: " (get torrent "created by"))
+          (println "Torrent Name..: " (torrent-name torrent))
+          (println "Creation Date.: " (format-date torrent))
+          (println "Created By....: " (torrent-created-by torrent))
           (println "Info Hash.....: " (torrent-info-hash torrent))
-          (println "Private.......: " (get-in torrent ["info" "private"] 0))
-          (println "Comment.......: " (get torrent "comment"))
+          (println "Private.......: " (private-torrent? torrent))
+          (println "Comment.......: " (torrent-comment torrent))
 
           (println "")
 
