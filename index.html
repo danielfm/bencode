@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Bencode by danielfm</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Bencode</h1>
+        <p>BitTorrent encoding implementation for Clojure.</p>
+        <p class="view"><a href="https://github.com/danielfm/bencode">View the Project on GitHub <small>danielfm/bencode</small></a></p>
+        <ul>
+          <li><a href="https://github.com/danielfm/bencode/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/danielfm/bencode/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/danielfm/bencode">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>bencode</h1>
+
+<p>Clojure implementation of <a href="http://bittorrent.org/beps/bep_0003.html#bencoding">Bencode</a>,
+the encoding used by BitTorrent for storing and transmitting loosely structured data.</p>
+
+<h2>Installation</h2>
+
+<p>Add the following dependency to your <em>project.clj</em> file:</p>
+
+<div class="highlight"><pre>
+<span class="p">[</span><span class="nv">bencode</span> <span class="s">"0.0.1"</span><span class="p">]</span>
+</pre></div>
+
+<h2>Usage</h2>
+
+<p>First, import the <code>bencode.core</code> namespace:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">use</span> <span class="o">'</span><span class="p">[</span><span class="nv">bencode.core</span><span class="p">])</span>
+</pre></div>
+
+<p>At this point, you should be able to use <code>bencode</code> and <code>bdecode</code> functions for
+encoding and decoding, respectively:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">bencode</span> <span class="p">{</span><span class="ss">:cow</span> <span class="s">"moo"</span> <span class="ss">:spam</span> <span class="p">[</span><span class="s">"info"</span> <span class="mi">32</span><span class="p">]})</span>
+<span class="c1">;; -&gt; "d3:cow3:moo4:spaml4:infoi32eee"</span>
+
+<span class="p">(</span><span class="nf">bdecode</span> <span class="s">"d3:cow3:moo4:spaml4:infoi32eee"</span><span class="p">)</span>
+<span class="c1">;; -&gt; {:cow "moo", :spam ["info" 32]}</span>
+</pre></div>
+
+<h3>Encoding Options</h3>
+
+<p>The <code>bencode</code> function also accepts an optional map:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">bencode</span> <span class="s">"moo"</span> <span class="p">{</span><span class="ss">:raw-str?</span> <span class="nv">true</span><span class="p">})</span>
+<span class="c1">;; -&gt; #&lt;byte[] [B@53c059f6&gt;</span>
+</pre></div>
+
+<p>At this point, these are the exposed options:</p>
+
+<ul>
+<li>
+<code>:to</code> - Instance of <code>OutputStream</code> where the encoding result should be
+written to. Default: <code>nil</code>
+</li>
+<li>
+<code>:raw-str?</code> - Whether the string being encoded should be returned as a
+byte array. This option can only be used if the option <code>:to</code> is absent.
+Default: <code>false</code>
+</li>
+</ul><h3>Decoding Options</h3>
+
+<p>The <code>bdecode</code> function also accepts an optional map:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">bdecode</span> <span class="s">"d3:cow3:moo4:spaml4:infoi32eee"</span>, <span class="p">{</span><span class="ss">:str-keys?</span> <span class="nv">true</span> <span class="ss">:raw-keys</span> <span class="p">[</span><span class="s">"spam"</span><span class="p">]})</span>
+<span class="c1">;; -&gt; {"cow" "moo", "spam" [#&lt;byte[] [B@74184b3b&gt; 32]}</span>
+</pre></div>
+
+<p>At this point, these are the exposed options:</p>
+
+<ul>
+<li>
+<code>:str-keys?</code> - Whether strings should be used as dictionary keys instead of
+keywords. Default: <code>false</code>
+</li>
+<li>
+<code>:raw-keys</code> - List containing all dictionary keys whose values should be
+decoded as raw strings instead of UTF-8-encoded strings. Default: <code>nil</code>
+</li>
+</ul><h3>Supported Data Types</h3>
+
+<p>According to the Bencoding spec, only <em>strings</em>, <em>integers</em>, <em>lists</em> and
+<em>dictionaries</em> are supported. Furthermore, only strings can be used as
+keys in a dictionary, and the keys must appear in sorted order (sorted as raw
+strings, not alphanumerics).</p>
+
+<p>On the Clojure side, <em>keywords</em> are encoded as <em>strings</em>, <em>sets</em> and <em>vectors</em>
+are encoded as <em>lists</em>, and all integers - <em>byte</em>, <em>short</em>, <em>int</em>, <em>long</em>,
+<em>big integers</em> - are encoded as <em>integers</em> with arbitrary size, and decoded to
+the smallest type which can hold the number without losing data.</p>
+
+<h2>License</h2>
+
+<p>Copyright (C) Daniel Fernandes Martins</p>
+
+<p>Distributed under the New BSD License. See COPYING for further details.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/danielfm">danielfm</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
