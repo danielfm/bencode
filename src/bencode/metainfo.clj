@@ -95,6 +95,11 @@
   (if-let [timestamp (get metainfo "creation date")]
     (Date. (* 1000 timestamp))))
 
+(defn torrent-files
+  "Returns the torrent list of files."
+  [metainfo]
+  (get-in metainfo ["info" "files"]))
+
 (defn torrent-created-by
   "Returns the torrent maker name."
   [metainfo]

@@ -97,4 +97,15 @@
 
     (testing "Torrent info hash"
       (is (= "848a6a0ec6c85507b8370e979b133214e5b5a6d4"
-             (torrent-info-hash *meta-info*))))))
+             (torrent-info-hash *meta-info*))))
+
+    (testing "Torrent files"
+      (is (= [{"length" 4353378304, "path" ["CentOS-6.4-x86_64-bin-DVD1.iso"]}
+              {"length" 1452388352, "path" ["CentOS-6.4-x86_64-bin-DVD2.iso"]}
+              {"length" 261,  "path" ["md5sum.txt"]}
+              {"length" 1135, "path" ["md5sum.txt.asc"]}
+              {"length" 293,  "path" ["sha1sum.txt"]}
+              {"length" 1167, "path" ["sha1sum.txt.asc"]}
+              {"length" 389,  "path" ["sha256sum.txt"]}
+              {"length" 1263, "path" ["sha256sum.txt.asc"]}]
+             (torrent-files *meta-info*))))))
