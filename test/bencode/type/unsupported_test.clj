@@ -1,4 +1,4 @@
-(ns bencode.unsupported-test
+(ns bencode.type.unsupported-test
   (:use [clojure.test]
         [bencode.core]))
 

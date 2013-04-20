@@ -1,4 +1,4 @@
-(ns bencode.metainfo
+(ns bencode.metainfo.reader
   (:use [bencode.core])
   (:import [java.security MessageDigest]
            [java.util Date]))

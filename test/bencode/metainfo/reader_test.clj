@@ -1,8 +1,8 @@
-(ns bencode.metainfo-test
+(ns bencode.metainfo.reader-test
   (:require [clojure.java [io :as io]])
   (:use [clojure.test]
         [bencode.core]
-        [bencode.metainfo])
+        [bencode.metainfo.reader])
   (:import [java.util Date]))
 
 (defonce ^:dynamic *meta-info* nil)

@@ -1,4 +1,4 @@
-(ns bencode.dict-test
+(ns bencode.type.dict-test
   (:use [clojure.test]
         [bencode.core]))
 

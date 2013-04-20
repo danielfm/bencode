@@ -1,4 +1,4 @@
-(ns bencode.number-test
+(ns bencode.type.number-test
   (:use [clojure.test]
         [bencode.core]))
 

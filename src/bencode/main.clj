@@ -1,10 +1,9 @@
 (ns bencode.main
   (:gen-class)
   (:use [bencode.core]
-        [bencode.metainfo])
+        [bencode.metainfo.reader])
   (:require [clojure.java [io :as io]])
-  (:import [java.util Date]
-           [java.text SimpleDateFormat]))
+  (:import  [java.text SimpleDateFormat]))
 
 (defn format-date [torrent]
   (let [f (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss.SSSZ")]
