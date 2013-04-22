@@ -4,5 +4,6 @@
   :license {:name "BSD License"
             :url "http://raw.github.com/danielfm/bencode/master/COPYING"}
   :dependencies [[org.clojure/clojure "1.5.0"]]
-  :main bencode.main
-  :jvm-opts ["-Dfile.encoding=utf-8"])
+  :source-paths ["src/main/clojure"]
+  :java-source-paths ["src/main/java"]
+  :test-paths ["src/test/clojure"])
