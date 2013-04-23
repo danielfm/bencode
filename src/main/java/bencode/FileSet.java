@@ -14,7 +14,11 @@ public class FileSet {
         return files;
     }
 
-    public long getTotalSize() {
+    public int totalPieces(int pieceLength) {
+        return (int) Math.ceil((double) this.totalSize() / pieceLength);
+    }
+
+    private long totalSize() {
         long size = 0L;
 
         for (File file : this.files) {
@@ -22,9 +26,5 @@ public class FileSet {
         }
 
         return size;
-    }
-
-    public int totalPieces(int pieceLength) {
-        return (int) Math.ceil((double) this.getTotalSize() / pieceLength);
     }
 }

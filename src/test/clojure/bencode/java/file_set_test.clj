@@ -7,8 +7,5 @@
 
 (deftest file-set-class
   (let [file-set (FileSet. files)]
-    (testing "calculating total size"
-      (is (= 3377619 (.getTotalSize file-set))))
-
     (testing "calculating total number of pieces"
       (is (= 13 (.totalPieces file-set (* 256 1024)))))))
