@@ -31,7 +31,7 @@ public class ParallelPieceDigest {
         int bytesRead = 0;
         int bytesLeft = this.pieceLength;
 
-	FileInputStream in = null;
+        FileInputStream in = null;
 
         ExecutorService pool = Executors.newFixedThreadPool(numWorkers);
 
