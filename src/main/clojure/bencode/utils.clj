@@ -1,5 +1,10 @@
 (ns bencode.utils)
 
+(defn flag-from-bool
+  "Returns 1 if b is true, false otherwise."
+  [b]
+  (if b 1 0))
+
 (defn digit?
   "Returns whether byte b is a digit, e.g., value between 0 and 9."
   [b]
