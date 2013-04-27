@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :source-paths ["src/main/clojure"]
   :java-source-paths ["src/main/java"]
-  :test-paths ["src/test/clojure"])
+  :test-paths ["src/test/clojure"]
+  :jar-exclusions [#"fixtures/"])
