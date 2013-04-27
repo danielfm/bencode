@@ -92,7 +92,7 @@
   "Returns an instance of java.util.Date representing the torrent
    creation date."
   [metainfo]
-  (if-let [timestamp (get metainfo "creation date")]
+  (if-let [^int timestamp (get metainfo "creation date")]
     (Date. (* 1000 timestamp))))
 
 (defn torrent-files

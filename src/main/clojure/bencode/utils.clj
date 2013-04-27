@@ -1,4 +1,5 @@
-(ns bencode.utils)
+(ns bencode.utils
+  (:import [java.io InputStream]))
 
 (defn flag-from-bool
   "Returns 1 if b is true, false otherwise."
@@ -13,7 +14,7 @@
 (defn read-digits!
   "Reads from input stream in until a non-digit char is found and returns
    a string containing the digits read."
-  [in]
+  [^InputStream in]
   (loop [data []]
     (.mark in 1)
     (let [f (.read in)]
@@ -26,5 +27,5 @@
 (defn error
   "Raises an exception that signals an unexpected condition during
    encoding/decoding process."
-  [msg]
+  [^String msg]
   (throw (IllegalArgumentException. msg)))

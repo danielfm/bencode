@@ -1,5 +1,6 @@
 (ns bencode.protocol
-  (:use [bencode.utils]))
+  (:use [bencode.utils])
+  (:import [java.io InputStream]))
 
 (defprotocol Bdecodable
   "All bdecodable data types must implement this protocol."
@@ -12,7 +13,7 @@
 (defmulti bdecode-type!
   "Dispatches to the proper decoder method according to the next byte read
    from input stream in."
-  (fn [in _]
+  (fn [^InputStream in _]
     (.mark in 1)
     (let [b (.read in)
           ch (char b)]

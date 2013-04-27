@@ -1,7 +1,8 @@
 (ns bencode.type.string
   (:require [clojure.edn :as edn])
   (:use [bencode.protocol]
-        [bencode.utils]))
+        [bencode.utils])
+  (:import [java.io InputStream OutputStream]))
 
 (extend-protocol Bdecodable
   String
@@ -25,16 +26,16 @@
 
 (extend-type (Class/forName "[B")
   Bencodable
-    (bencode! [self out opts]
-      (let [len (str (count self))]
+    (bencode! [^String self ^OutputStream out opts]
+      (let [^String len (str (count self))]
         (.write out (.getBytes len) 0 (count len))
         (.write out (int \:))
         (.write out self 0 (count self)))))
 
-(defmethod bdecode-type! :string [in opts]
-  (let [size (read-digits! in)
-        len (edn/read-string size)
-        data (byte-array len)]
+(defmethod bdecode-type! :string [^InputStream in opts]
+  (let [^String size (read-digits! in)
+        ^String len(edn/read-string size)
+        ^bytes data (byte-array len)]
     (when-not (= \: (char (.read in)))
       (error "Expected ':'"))
     (if (and (> len 0) (< (.read in data 0 len) len))

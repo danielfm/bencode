@@ -10,7 +10,7 @@
 
 (defn file-path
   "Returns the file path relative to directory dir."
-  [dir file]
+  [^File dir ^File file]
   (let [sep File/separator
         dir-path (str (.getCanonicalPath dir) sep) 
         file-path (.getCanonicalPath file)]
@@ -18,17 +18,17 @@
 
 (defn file-entry
   "Returns a dictionary that represents a torrent file entry."
-  [dir file]
+  [^File dir ^File file]
   {"length" (.length file) "path" (file-path dir file)})
 
 (defn scan-files
   "Returns a seq containing all files inside directory dir."
-  [dir]
-  (filter #(.isFile %) (file-seq dir)))
+  [^File dir]
+  (filter #(.isFile ^File %) (file-seq dir)))
 
 (defn torrent-files
   "Returns a seq containing all file entries from the files inside dir."
-  [dir files]
+  [^File dir files]
   (let [path (.getCanonicalPath dir)]
     (map #(file-entry dir %) files)))
 
@@ -53,7 +53,7 @@
 
 (defn- single-file-metainfo
   "Returns a metainfo dictionary for single-file torrent."
-  [file base-metainfo n-threads]
+  [^File file base-metainfo n-threads]
   (assoc-pieces-hash [file]
                      (assoc-in base-metainfo ["info" "length"]
                                (.length file))
@@ -61,7 +61,7 @@
 
 (defn- multi-file-metainfo
   "Returns a metainfo dictionary for multi-file torrent."
-  [dir files base-metainfo n-threads]
+  [^File dir files base-metainfo n-threads]
   (assoc-pieces-hash files
                      (assoc-in base-metainfo ["info" "files"]
                                (torrent-files dir files))
@@ -69,7 +69,7 @@
 
 (defn create-metainfo
   "Creates a BitTorrent metainfo dictionary."
-  [& {:keys [file announce-list name comment created-by
+  [& {:keys [^File file announce-list name comment created-by
              piece-length-power private? n-threads]}]
   (let [now           (System/currentTimeMillis)
         n-thread      (or n-threads 2)

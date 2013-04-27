@@ -1,6 +1,8 @@
 (ns bencode.type.dict
   (:use [bencode.protocol]
-        [bencode.utils]))
+        [bencode.utils])
+  (:import [java.util Map]
+           [java.io InputStream OutputStream]))
 
 (defn- valid-dict?
   "Returns whether the dictionary m only contains valid keys."
@@ -35,8 +37,8 @@
     [key val]))
 
 (extend-protocol Bencodable
-  java.util.Map
-    (bencode! [self out opts]
+  Map
+    (bencode! [self ^OutputStream out opts]
       (when-not (valid-dict? self)
         (error "Only keywords can be used as dictionary keys"))
       (.write out (int \d))
@@ -47,7 +49,7 @@
             (sort-dict self)))
       (.write out (int \e))))
 
-(defmethod bdecode-type! :dict [in opts]
+(defmethod bdecode-type! :dict [^InputStream in opts]
   (loop [data (sorted-map)]
     (.mark in 1)
     (if (= \e (char (.read in)))

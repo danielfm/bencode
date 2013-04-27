@@ -1,10 +1,12 @@
 (ns bencode.type.list
   (:use [bencode.protocol]
-        [bencode.utils]))
+        [bencode.utils])
+  (:import [java.util Set]
+           [java.io InputStream OutputStream]))
 
 (defn- bencode-seq!
   "Bencodes the given sequence."
-  [seq out opts]
+  [seq ^OutputStream out opts]
   (.write out (int \l))
   (doall (map #(bencode! % out opts) seq))
   (.write out (int \e)))
@@ -18,7 +20,7 @@
     (bencode! [self out opts]
       (bencode-seq! self out opts)))
 
-(defmethod bdecode-type! :list [in opts]
+(defmethod bdecode-type! :list [^InputStream in opts]
   (loop [data []]
     (.mark in 1)
     (if (= \e (char (.read in)))

@@ -1,18 +1,19 @@
 (ns bencode.type.number
   (:require [clojure.edn :as edn])
   (:use [bencode.protocol]
-        [bencode.utils]))
+        [bencode.utils])
+  (:import [java.io InputStream OutputStream]))
 
 (defn- bencode-number!
   "Bencodes the given number, which is assumed to be an integer."
-  [n out]
-  (let [s (str "i" n "e")]
+  [^Number n ^OutputStream out]
+  (let [^String s (str "i" n "e")]
     (.write out (.getBytes s) 0 (count s))))
 
 (defn- invalid-number?
   "Returns whether the string of digits represents an invalid number according
    to the spec."
-  [digits]
+  [^String digits]
   (or (empty? digits)
       (and (> (count digits) 1)
            (= \0 (char (first digits))))))
@@ -42,7 +43,7 @@
     (bencode! [self out opts]
       (bencode-number! self out)))
 
-(defmethod bdecode-type! :number [in opts]
+(defmethod bdecode-type! :number [^InputStream in opts]
   (.mark in 1)
   (let [f (char (.read in))
         sign (#{\- \+} f)]
