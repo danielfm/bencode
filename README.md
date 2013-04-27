@@ -10,7 +10,7 @@ Add the following dependency to your _project.clj_ file:
 
 ````clojure
 
-[bencode "0.1.0"]
+[bencode "0.2.2"]
 ````
 
 
