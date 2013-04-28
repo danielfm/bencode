@@ -8,10 +8,8 @@
 (defonce ^:dynamic *meta-info* nil)
 
 (defmacro with-torrent [file-name & body]
-  `(let [file# (io/file ~file-name)]
-     (with-open [stream# (io/input-stream file#)]
-       (binding [*meta-info* (parse-metainfo stream#)]
-         ~@body))))
+  `(binding [*meta-info* (parse-metainfo-file ~file-name)]
+     ~@body))
 
 (deftest meta-info-type
   (testing "Checking if a torrent only contains a single file"
@@ -86,18 +84,30 @@
     (testing "Torrent size"
       (is (= 789884928 (torrent-size *meta-info*))))
 
-    (testing "Torrent info hash"
+    (testing "Torrent info hash as a byte array"
+      (let [hash (torrent-info-hash *meta-info*)]
+        (is (instance? (Class/forName "[B") hash))
+        (is (= '(51 89 -112 -42 21 89 75 -101 -28 9 -52 -2 -71 88 100 -30 78 -57 2 -57)
+               (seq hash)))))
+
+    (testing "Torrent info hash as string"
       (is (= "335990d615594b9be409ccfeb95864e24ec702c7"
-             (torrent-info-hash *meta-info*))))))
+             (torrent-info-hash-str *meta-info*))))))
 
 (deftest multi-file-torrent-info
   (with-torrent "resources/fixtures/multi-file.torrent"
     (testing "Torrent size is the sum of the sizes of all files"
       (is (= 5805771164 (torrent-size *meta-info*))))
 
-    (testing "Torrent info hash"
+    (testing "Torrent info hash as a byte array"
+      (let [hash (torrent-info-hash *meta-info*)]
+        (is (instance? (Class/forName "[B") hash))
+        (is (= '(-124 -118 106 14 -58 -56 85 7 -72 55 14 -105 -101 19 50 20 -27 -75 -90 -44)
+               (seq hash)))))
+
+    (testing "Torrent info hash as string"
       (is (= "848a6a0ec6c85507b8370e979b133214e5b5a6d4"
-             (torrent-info-hash *meta-info*))))
+             (torrent-info-hash-str *meta-info*))))
 
     (testing "Torrent files"
       (is (= [{"length" 4353378304, "path" ["CentOS-6.4-x86_64-bin-DVD1.iso"]}

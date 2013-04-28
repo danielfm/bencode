@@ -1,6 +1,8 @@
 (ns bencode.metainfo.reader
   (:use [bencode.core])
-  (:import [java.security MessageDigest]
+  (:require [clojure.java.io :as io])
+  (:import [java.io File]
+           [java.security MessageDigest]
            [java.util Date]))
 
 (defn- hex-from-bytes
@@ -16,6 +18,12 @@
   [in]
   (bdecode in {:str-keys? true
                :raw-keys ["pieces"]}))
+
+(defn parse-metainfo-file
+  "Bdecodes the torrent metainfo located at file-path."
+  [file-path]
+  (with-open [in (io/input-stream file-path)]
+    (parse-metainfo in)))
 
 (defn single-file-torrent?
   "Returns whether metainfo represents a single-file torrent."
@@ -81,12 +89,16 @@
                      (get-in metainfo ["info" "files"])))))
 
 (defn torrent-info-hash
-  "Returns the torrent info hash."
+  "Returns the byte array of the torrent info hash."
   [metainfo]
   (let [enc (bencode (get metainfo "info") {:raw-str? true})
-        dig (MessageDigest/getInstance "SHA1")
-        res (.digest dig enc)]
-    (hex-from-bytes res)))
+        dig (MessageDigest/getInstance "SHA1")]
+    (.digest dig enc)))
+
+(defn torrent-info-hash-str
+  "Returns the torrent info hash in a readable format."
+  [metainfo]
+  (hex-from-bytes (torrent-info-hash metainfo)))
 
 (defn torrent-creation-date
   "Returns an instance of java.util.Date representing the torrent
