@@ -3,6 +3,13 @@
 Clojure implementation of [Bencode](http://bittorrent.org/beps/bep_0003.html#bencoding),
 the encoding used by BitTorrent for storing and transmitting loosely structured data.
 
+## Features
+
+* Parsing bencode strings directly to Clojure data structures and vice-versa
+* Support for input and output streams
+* Read and write BitTorrent metainfo (.torrent) files
+* Multi-threaded algorithm for fast piece hashing
+
 
 ## Installation
 
@@ -10,11 +17,13 @@ Add the following dependency to your _project.clj_ file:
 
 ````clojure
 
-[bencode "0.2.2"]
+[bencode "0.2.4"]
 ````
 
 
 ## Usage
+
+### Encoding and Decoding
 
 First, import the `bencode.core` namespace:
 
@@ -36,7 +45,20 @@ encoding and decoding, respectively:
 ```
 
 
-### Encoding Options
+##### Supported Data Types
+
+According to the Bencoding spec, only _strings_, _integers_, _lists_ and
+_dictionaries_ should be supported. Furthermore, only strings can be used as
+keys in a dictionary, and the keys must appear in sorted order (sorted as raw
+strings, not alphanumerics).
+
+On the Clojure side, _keywords_ are encoded as _strings_, _sets_ and _vectors_
+are encoded as _lists_, and all integers - _byte_, _short_, _int_, _long_,
+_big integers_ - are encoded as _integers_ with arbitrary size, and decoded to
+the smallest type which can hold the number without losing data.
+
+
+#### Encoding Options
 
 The `bencode` function also accepts an optional map:
 
@@ -46,7 +68,7 @@ The `bencode` function also accepts an optional map:
 ;; -> #<byte[] [B@53c059f6>
 ````
 
-At this point, these are the exposed options:
+These are the supported encoding options:
 
 * `:to` - Instance of `OutputStream` where the encoding result should be
   written to. Default: `nil`
@@ -55,7 +77,7 @@ At this point, these are the exposed options:
   Default: `false`
 
 
-### Decoding Options
+#### Decoding Options
 
 The `bdecode` function also accepts an optional map:
 
@@ -65,8 +87,9 @@ The `bdecode` function also accepts an optional map:
 ;; -> {"cow" "moo", "spam" [#<byte[] [B@74184b3b> 32]}
 ````
 
-At this point, these are the exposed options:
+The input might be either a _string_, a _byte array_ or an _input stream_.
 
+These are the supported decoding options:
 
 * `:str-keys?` - Whether strings should be used as dictionary keys instead of
   keywords. Default: `false`
@@ -74,17 +97,69 @@ At this point, these are the exposed options:
   decoded as raw strings instead of UTF-8-encoded strings. Default: `nil`
 
 
-### Supported Data Types
+### BitTorrent Metainfo
 
-According to the Bencoding spec, only _strings_, _integers_, _lists_ and
-_dictionaries_ are supported. Furthermore, only strings can be used as
-keys in a dictionary, and the keys must appear in sorted order (sorted as raw
-strings, not alphanumerics).
+#### Reading Metainfo Files
 
-On the Clojure side, _keywords_ are encoded as _strings_, _sets_ and _vectors_
-are encoded as _lists_, and all integers - _byte_, _short_, _int_, _long_,
-_big integers_ - are encoded as _integers_ with arbitrary size, and decoded to
-the smallest type which can hold the number without losing data.
+A collection of useful functions for BitTorrent metainfo parsing are available
+under the `bencode.metainfo.reader` namespace:
+
+````clojure
+
+(use '[bencode.metainfo.reader])
+
+;; parsing an input stream
+(def metainfo (parse-metainfo input-stream))
+
+;; parsing a file given its path
+(def metainfo (parse-metainfo-file "/file/path"))
+````
+
+To extract bits of information from this metainfo:
+
+````clojure
+
+(torrent-name metainfo)
+;; -> "my.supercool.torrent"
+
+(public-torrent? metainfo)
+;; -> true
+
+(torrent-info-hash-str metainfo)
+;; -> "b174c9c090275f858853ba5ea1b01762eaa59f9d"
+````
+
+Please check out the source code for a complete list of the available functions.
+
+
+#### Creating a Metainfo Dictionary
+
+It's very easy to create a metainfo file:
+
+````clojure
+
+(use '[bencode.metainfo.writer])
+
+(def metainfo (create-metainfo :file               file-obj
+                               :created-by         "You"
+                               :announce-list      [["tracker-1"] ["tracker-2"]]
+                               :private?           false
+                               :name               "optional.torrent.name"
+                               :piece-length-power 7 ;; piece length = 2^7KiB
+                               :n-threads          4 ;; for fast parallel piece hashing
+                               :comment            "Some torrent"))
+````
+
+This operation might take several minutes depending on the file size.
+
+To be able to import this file in your favorite BitTorrent client, just bencode
+`metainfo` to a _.torrent_ file and you're done:
+
+
+````clojure
+
+(bencode metainfo {:to file-out-stream})
+````
 
 
 ## License
