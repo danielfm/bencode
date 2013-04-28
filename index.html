@@ -7,9 +7,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -19,7 +17,10 @@
       <header>
         <h1>Bencode</h1>
         <p>BitTorrent encoding implementation for Clojure.</p>
+
         <p class="view"><a href="https://github.com/danielfm/bencode">View the Project on GitHub <small>danielfm/bencode</small></a></p>
+
+
         <ul>
           <li><a href="https://github.com/danielfm/bencode/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/danielfm/bencode/tarball/master">Download <strong>TAR Ball</strong></a></li>
@@ -32,15 +33,24 @@
 <p>Clojure implementation of <a href="http://bittorrent.org/beps/bep_0003.html#bencoding">Bencode</a>,
 the encoding used by BitTorrent for storing and transmitting loosely structured data.</p>
 
-<h2>Installation</h2>
+<h2>Features</h2>
+
+<ul>
+<li>Parsing bencode strings directly to Clojure data structures and vice-versa</li>
+<li>Support for input and output streams</li>
+<li>Read and write BitTorrent metainfo (.torrent) files</li>
+<li>Multi-threaded algorithm for fast piece hashing</li>
+</ul><h2>Installation</h2>
 
 <p>Add the following dependency to your <em>project.clj</em> file:</p>
 
 <div class="highlight"><pre>
-<span class="p">[</span><span class="nv">bencode</span> <span class="s">"0.0.1"</span><span class="p">]</span>
+<span class="p">[</span><span class="nv">bencode</span> <span class="s">"0.2.4"</span><span class="p">]</span>
 </pre></div>
 
 <h2>Usage</h2>
+
+<h3>Encoding and Decoding</h3>
 
 <p>First, import the <code>bencode.core</code> namespace:</p>
 
@@ -59,7 +69,19 @@ encoding and decoding, respectively:</p>
 <span class="c1">;; -&gt; {:cow "moo", :spam ["info" 32]}</span>
 </pre></div>
 
-<h3>Encoding Options</h3>
+<h5>Supported Data Types</h5>
+
+<p>According to the Bencoding spec, only <em>strings</em>, <em>integers</em>, <em>lists</em> and
+<em>dictionaries</em> should be supported. Furthermore, only strings can be used as
+keys in a dictionary, and the keys must appear in sorted order (sorted as raw
+strings, not alphanumerics).</p>
+
+<p>On the Clojure side, <em>keywords</em> are encoded as <em>strings</em>, <em>sets</em> and <em>vectors</em>
+are encoded as <em>lists</em>, and all integers - <em>byte</em>, <em>short</em>, <em>int</em>, <em>long</em>,
+<em>big integers</em> - are encoded as <em>integers</em> with arbitrary size, and decoded to
+the smallest type which can hold the number without losing data.</p>
+
+<h4>Encoding Options</h4>
 
 <p>The <code>bencode</code> function also accepts an optional map:</p>
 
@@ -68,7 +90,7 @@ encoding and decoding, respectively:</p>
 <span class="c1">;; -&gt; #&lt;byte[] [B@53c059f6&gt;</span>
 </pre></div>
 
-<p>At this point, these are the exposed options:</p>
+<p>These are the supported encoding options:</p>
 
 <ul>
 <li>
@@ -80,7 +102,7 @@ written to. Default: <code>nil</code>
 byte array. This option can only be used if the option <code>:to</code> is absent.
 Default: <code>false</code>
 </li>
-</ul><h3>Decoding Options</h3>
+</ul><h4>Decoding Options</h4>
 
 <p>The <code>bdecode</code> function also accepts an optional map:</p>
 
@@ -89,7 +111,9 @@ Default: <code>false</code>
 <span class="c1">;; -&gt; {"cow" "moo", "spam" [#&lt;byte[] [B@74184b3b&gt; 32]}</span>
 </pre></div>
 
-<p>At this point, these are the exposed options:</p>
+<p>The input might be either a <em>string</em>, a <em>byte array</em> or an <em>input stream</em>.</p>
+
+<p>These are the supported decoding options:</p>
 
 <ul>
 <li>
@@ -100,17 +124,63 @@ keywords. Default: <code>false</code>
 <code>:raw-keys</code> - List containing all dictionary keys whose values should be
 decoded as raw strings instead of UTF-8-encoded strings. Default: <code>nil</code>
 </li>
-</ul><h3>Supported Data Types</h3>
+</ul><h3>BitTorrent Metainfo</h3>
 
-<p>According to the Bencoding spec, only <em>strings</em>, <em>integers</em>, <em>lists</em> and
-<em>dictionaries</em> are supported. Furthermore, only strings can be used as
-keys in a dictionary, and the keys must appear in sorted order (sorted as raw
-strings, not alphanumerics).</p>
+<h4>Reading Metainfo Files</h4>
 
-<p>On the Clojure side, <em>keywords</em> are encoded as <em>strings</em>, <em>sets</em> and <em>vectors</em>
-are encoded as <em>lists</em>, and all integers - <em>byte</em>, <em>short</em>, <em>int</em>, <em>long</em>,
-<em>big integers</em> - are encoded as <em>integers</em> with arbitrary size, and decoded to
-the smallest type which can hold the number without losing data.</p>
+<p>A collection of useful functions for BitTorrent metainfo parsing are available
+under the <code>bencode.metainfo.reader</code> namespace:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">use</span> <span class="o">'</span><span class="p">[</span><span class="nv">bencode.metainfo.reader</span><span class="p">])</span>
+
+<span class="c1">;; parsing an input stream</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">metainfo</span> <span class="p">(</span><span class="nf">parse-metainfo</span> <span class="nv">input-stream</span><span class="p">))</span>
+
+<span class="c1">;; parsing a file given its path</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">metainfo</span> <span class="p">(</span><span class="nf">parse-metainfo-file</span> <span class="s">"/file/path"</span><span class="p">))</span>
+</pre></div>
+
+<p>To extract bits of information from this metainfo:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">torrent-name</span> <span class="nv">metainfo</span><span class="p">)</span>
+<span class="c1">;; -&gt; "my.supercool.torrent"</span>
+
+<span class="p">(</span><span class="nf">public-torrent?</span> <span class="nv">metainfo</span><span class="p">)</span>
+<span class="c1">;; -&gt; true</span>
+
+<span class="p">(</span><span class="nf">torrent-info-hash-str</span> <span class="nv">metainfo</span><span class="p">)</span>
+<span class="c1">;; -&gt; "b174c9c090275f858853ba5ea1b01762eaa59f9d"</span>
+</pre></div>
+
+<p>Please check out the source code for a complete list of the available functions.</p>
+
+<h4>Creating a Metainfo Dictionary</h4>
+
+<p>It's very easy to create a metainfo file:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">use</span> <span class="o">'</span><span class="p">[</span><span class="nv">bencode.metainfo.writer</span><span class="p">])</span>
+
+<span class="p">(</span><span class="k">def </span><span class="nv">metainfo</span> <span class="p">(</span><span class="nf">create-metainfo</span> <span class="ss">:file</span>               <span class="nv">file-obj</span>
+                               <span class="ss">:created-by</span>         <span class="s">"You"</span>
+                               <span class="ss">:announce-list</span>      <span class="p">[[</span><span class="s">"tracker-1"</span><span class="p">]</span> <span class="p">[</span><span class="s">"tracker-2"</span><span class="p">]]</span>
+                               <span class="ss">:private?</span>           <span class="nv">false</span>
+                               <span class="ss">:name</span>               <span class="s">"optional.torrent.name"</span>
+                               <span class="ss">:piece-length-power</span> <span class="mi">7</span> <span class="c1">;; piece length = 2^7KiB</span>
+                               <span class="ss">:n-threads</span>          <span class="mi">4</span> <span class="c1">;; for fast parallel piece hashing</span>
+                               <span class="ss">:comment</span>            <span class="s">"Some torrent"</span><span class="p">))</span>
+</pre></div>
+
+<p>This operation might take several minutes depending on the file size.</p>
+
+<p>To be able to import this file in your favorite BitTorrent client, just bencode
+<code>metainfo</code> to a <em>.torrent</em> file and you're done:</p>
+
+<div class="highlight"><pre>
+<span class="p">(</span><span class="nf">bencode</span> <span class="nv">metainfo</span> <span class="p">{</span><span class="ss">:to</span> <span class="nv">file-out-stream</span><span class="p">})</span>
+</pre></div>
 
 <h2>License</h2>
 
@@ -118,12 +188,12 @@ the smallest type which can hold the number without losing data.</p>
 
 <p>Distributed under the New BSD License. See COPYING for further details.</p>
       </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/danielfm">danielfm</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/danielfm">danielfm</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    <script src="javascripts/scale.fix.js"></script>
     
   </body>
 </html>
