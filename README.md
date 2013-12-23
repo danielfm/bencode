@@ -8,6 +8,7 @@ the encoding used by BitTorrent for storing and transmitting loosely structured 
 * Parsing bencode strings directly to Clojure data structures and vice-versa
 * Support for input and output streams
 * Read and write BitTorrent metainfo (.torrent) files
+* Can generate Magnet link from BitTorrent metainfo
 * Multi-threaded algorithm for fast piece hashing
 
 
