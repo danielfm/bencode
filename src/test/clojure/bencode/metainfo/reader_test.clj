@@ -119,3 +119,9 @@
               {"length" 389,  "path" ["sha256sum.txt"]}
               {"length" 1263, "path" ["sha256sum.txt.asc"]}]
              (torrent-files *meta-info*))))))
+
+(deftest magnet-link
+  (with-torrent "resources/fixtures/multi-file.torrent"
+    (testing "Magnet link generation"
+      (is (= "magnet:?xt=urn:btih:848a6a0ec6c85507b8370e979b133214e5b5a6d4&dn=CentOS-6.4-x86_64-bin-DVD1to2&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ffr33domtracker.h33t.com%3A3310%2Fannounce&tr=udp%3A%2F%2Ftracker.istole.it%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.feednet.ro%3A80%2Fannounce&tr=http%3A%2F%2Fipv6.torrent.centos.org%3A6969%2Fannounce&tr=http%3A%2F%2Ftorrent.centos.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.ccc.de%3A80&tr=udp%3A%2F%2Ftracker.istole.it%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80"
+             (torrent-magnet-link *meta-info*))))))

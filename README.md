@@ -129,8 +129,15 @@ To extract bits of information from this metainfo:
 ;; -> "b174c9c090275f858853ba5ea1b01762eaa59f9d"
 ````
 
-Please check out the source code for a complete list of the available functions.
+It's also possible to generate the Magnet link for a metainfo:
 
+````clojure
+
+(torrent-magnet-link metainfo)
+;; -> "magnet:?xt=urn:btih:..."
+````
+
+Please check out the source code for a complete list of the available functions.
 
 #### Creating a Metainfo Dictionary
 

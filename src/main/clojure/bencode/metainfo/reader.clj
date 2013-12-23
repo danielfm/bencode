@@ -2,8 +2,10 @@
   (:use [bencode.core])
   (:require [clojure.java.io :as io])
   (:import [java.io File]
+           [java.net URLEncoder]
            [java.security MessageDigest]
-           [java.util Date]))
+           [java.util Date]
+           [org.apache.commons.codec.binary Base32]))
 
 (defn- hex-from-bytes
   "Converts a byte-array to a hex string."
@@ -121,3 +123,11 @@
   "Returns the torrent comment."
   [metainfo]
   (get metainfo "comment"))
+
+(defn torrent-magnet-link
+  "Returns the torrent magnet link."
+  [metainfo]
+  (str "magnet:?xt=urn:btih:" (torrent-info-hash-str metainfo)
+       "&dn=" (URLEncoder/encode (torrent-name metainfo) "UTF-8")
+       (reduce #(str %1 "&tr=" (URLEncoder/encode %2 "UTF-8"))
+               "" (flatten (torrent-announce-list metainfo)))))
