@@ -22,6 +22,12 @@
       (is (multi-file-torrent? *meta-info*))
       (is (not (single-file-torrent? *meta-info*))))))
 
+(deftest torrent-name-utf-8
+  (with-torrent "resources/fixtures/eceae16f50b11d3a6542b86aefdc1c6cb28ad708.torrent"
+    (testing "Torrent name encoding by utf-8"
+      (is (= "星球大战前传1-3" (get-in *meta-info* ["info" "name.utf-8"])))
+      (is (= "星球大战前传1-3" (torrent-name *meta-info*))))))
+
 (deftest basic-info
   (with-torrent "resources/fixtures/single-file.torrent"
     (testing "Tracker URL"
