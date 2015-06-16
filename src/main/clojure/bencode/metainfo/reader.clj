@@ -50,7 +50,8 @@
 (defn torrent-name
   "Returns the torrent name."
   [metainfo]
-  (get-in metainfo ["info" "name"]))
+  (or (get-in metainfo ["info" "name.utf-8"])
+      (get-in metainfo ["info" "name"])))
 
 (defn torrent-announce
   "Returns the torrent tracker URL."
