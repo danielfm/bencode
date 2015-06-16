@@ -1,5 +1,7 @@
 # bencode
 
+[![Build Status](https://travis-ci.org/danielfm/bencode.svg?branch=master)](https://travis-ci.org/danielfm/bencode)
+
 Clojure implementation of [Bencode](http://bittorrent.org/beps/bep_0003.html#bencoding),
 the encoding used by BitTorrent for storing and transmitting loosely structured data.
 
