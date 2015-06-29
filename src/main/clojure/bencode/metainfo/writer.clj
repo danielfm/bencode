@@ -1,11 +1,8 @@
 (ns bencode.metainfo.writer
   (:use [bencode.core]
         [bencode.utils])
-  (:require [clojure.string :as str]
-            [clojure.java.io :as io])
+  (:require [clojure.string :as str])
   (:import [java.io File]
-           [java.nio ByteBuffer]
-           [java.security MessageDigest]
            [java.util.concurrent TimeUnit]))
 
 (defn file-path

@@ -1,11 +1,9 @@
 (ns bencode.metainfo.reader
   (:use [bencode.core])
   (:require [clojure.java.io :as io])
-  (:import [java.io File]
-           [java.net URLEncoder]
+  (:import [java.net URLEncoder]
            [java.security MessageDigest]
-           [java.util Date]
-           [org.apache.commons.codec.binary Base32]))
+           [java.util Date]))
 
 (defn- hex-from-bytes
   "Converts a byte-array to a hex string."
