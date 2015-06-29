@@ -2,23 +2,23 @@
   (:require [clojure.edn :as edn])
   (:use [bencode.protocol]
         [bencode.utils])
-  (:import [java.io InputStream OutputStream]))
+  (:import [java.io InputStream OutputStream ByteArrayInputStream]))
 
 (extend-protocol Bdecodable
   String
-    (bdecode [self opts]
-      (bdecode (.getBytes self "UTF-8") opts)))
+    (bdecode [self {:keys [^String encoding] :or {encoding "UTF-8"} :as opts}]
+      (bdecode (.getBytes self encoding) opts)))
 
 (extend-type (Class/forName "[B")
   Bdecodable
     (bdecode [self opts]
-      (let [stream (java.io.ByteArrayInputStream. self)]
+      (let [stream (ByteArrayInputStream. self)]
         (bdecode stream opts))))
 
 (extend-protocol Bencodable
   String
-    (bencode! [self out opts]
-      (bencode! (.getBytes self "UTF-8") out opts))
+    (bencode! [self out {:keys [^String encoding] :or {encoding "UTF-8"} :as opts}]
+      (bencode! (.getBytes self encoding) out opts))
 
   clojure.lang.Keyword
     (bencode! [self out opts]
@@ -32,7 +32,7 @@
         (.write out (int \:))
         (.write out self 0 (count self)))))
 
-(defmethod bdecode-type! :string [^InputStream in opts]
+(defmethod bdecode-type! :string [^InputStream in {:keys [^String encoding] :or {encoding "UTF-8"} :as opts}]
   (let [^String size (read-digits! in)
         ^String len(edn/read-string size)
         ^bytes data (byte-array len)]
@@ -42,4 +42,4 @@
       (error "Unterminated string")
       (if (:raw-str? opts)
         data
-        (String. data "UTF-8")))))
+        (String. data encoding)))))

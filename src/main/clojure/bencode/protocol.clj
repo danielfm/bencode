@@ -22,7 +22,7 @@
        (= ch \l)  :list
        (= ch \d)  :dict
        (digit? b) (do (.reset in) :string)
-       :else      :unknown))))
+       :else      (do (.reset in) :unknown)))))
 
-(defmethod bdecode-type! :unknown [seq opts]
-  (error "Unexpected token"))
+(defmethod bdecode-type! :unknown [in opts]
+  (error (str "Unexpected token: " (String. (.read in)))))
