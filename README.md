@@ -171,6 +171,11 @@ To be able to import this file in your favorite BitTorrent client, just bencode
 (bencode metainfo {:to file-out-stream})
 ````
 
+## Donate
+
+If this project is useful for you, buy me a beer!
+
+Bitcoin: `1CLFiuB5oghPjnq8zXFkYgKyFnCTVWEV1r`
 
 ## License
 
