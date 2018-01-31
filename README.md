@@ -38,7 +38,7 @@ First, import the `bencode.core` namespace:
 At this point, you should be able to use `bencode` and `bdecode` functions for
 encoding and decoding, respectively:
 
-````clojure
+```clojure
 
 (bencode {:cow "moo" :spam ["info" 32]})
 ;; -> "d3:cow3:moo4:spaml4:infoi32eee"
